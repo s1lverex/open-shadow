@@ -177,7 +177,7 @@ body {
 }
 
 .is-splash .splash {
-  --splash-size: 112px;
+  --splash-size: 132px;
   position: fixed;
   z-index: 1000;
   inset: 0;

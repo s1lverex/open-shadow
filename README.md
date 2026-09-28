@@ -31,6 +31,12 @@ Every provider keeps its key or sign-in on this machine. The app checks them for
 | Google Gemini | Chat Completions |
 | Custom | any OpenAI-compatible base URL and model id |
 
+## Verified
+
+The release evidence — unit tests, the registry mutation check, the in-app mock run over real
+IPC, and a live Xiaomi MiMo run — is recorded in [VERIFICATION.md](VERIFICATION.md), together
+with the commands to re-run it.
+
 ## It opens on the Umbra orb
 
 The app starts on its own screen. A drop falls, the orb forms, its motes ignite, and the name
