@@ -5,11 +5,12 @@
 import { spawn } from 'node:child_process';
 import http from 'node:http';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { _electron as electron } from 'playwright-core';
 
 const REPO = process.env.REPO || path.resolve(import.meta.dirname, '../..');
-const OUT = process.env.OUT_DIR || path.join(import.meta.dirname, 'shots');
+const OUT = process.env.OUT || path.join(os.tmpdir(), 'openshadow-e2e');
 const ELECTRON = path.join(REPO, 'node_modules/electron/dist/electron');
 fs.mkdirSync(OUT, { recursive: true });
 

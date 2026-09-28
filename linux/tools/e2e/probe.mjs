@@ -1,11 +1,12 @@
 // Probe the settled app state: is the splash gone, does the empty-chat screen render its orb?
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { _electron as electron } from 'playwright-core';
 
 const REPO = process.env.REPO || path.resolve(import.meta.dirname, '../..');
-const OUT = path.join(import.meta.dirname, 'shots');
+const OUT = process.env.OUT || path.join(os.tmpdir(), 'openshadow-e2e');
 const ELECTRON = path.join(REPO, 'node_modules/electron/dist/electron');
 
 const xvfb = spawn('Xvfb', [':97', '-screen', '0', '1440x960x24', '-nolisten', 'tcp'], { stdio: 'ignore' });

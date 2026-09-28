@@ -71,7 +71,8 @@ drawing updates in place.
 
 Open Shadow has a built-in browser and drives it itself. It opens a page, moves its own cursor,
 clicks, types, and sees what is on the screen. The panel sits on the right of the chat. Close it
-and the agent still works.
+and the agent still works. The driving path (navigate, snapshot, click, screenshot, cursor
+overlay) is verified — see [VERIFICATION.md](VERIFICATION.md).
 
 ## Mini chat for a side question
 

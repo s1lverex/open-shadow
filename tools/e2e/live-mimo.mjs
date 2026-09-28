@@ -3,6 +3,7 @@
 // Phase 2: the same request through the app's own main process (real IPC -> chatcompletions.js).
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { _electron as electron } from 'playwright-core';
 
@@ -11,7 +12,7 @@ if (!KEY) { console.error('MIMO_API_KEY not set'); process.exit(2); }
 const BASE = process.env.MIMO_BASE || (KEY.startsWith('tp-') ? 'https://token-plan-cn.xiaomimimo.com/v1' : 'https://api.xiaomimimo.com/v1');
 const MODEL = process.env.MIMO_MODEL || 'mimo-v2.6-flash';
 const REPO = process.env.REPO || path.resolve(import.meta.dirname, '../..');
-const OUT = process.env.OUT_DIR || path.join(import.meta.dirname, 'shots');
+const OUT = process.env.OUT || path.join(os.tmpdir(), 'openshadow-e2e');
 const ELECTRON = path.join(REPO, 'node_modules/electron/dist/electron');
 fs.mkdirSync(OUT, { recursive: true });
 const evidence = { startedAt: new Date().toISOString(), base: BASE, model: MODEL, steps: [] };
