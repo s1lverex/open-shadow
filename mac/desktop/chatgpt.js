@@ -12,7 +12,7 @@ const CLIENT_ID = 'app_EMoamEEZ73f0CkXaXp7hrann';
 const ISSUER = 'https://auth.openai.com';
 const PORT = 1455;
 const REDIRECT = `http://localhost:${PORT}/auth/callback`;
-const ORIGINATOR = 'openghost';
+const ORIGINATOR = 'openshadow';
 const LOGIN_TIMEOUT = 5 * 60 * 1000;
 const EARLY_REFRESH = 60 * 1000;
 const HOSTS = ['127.0.0.1', '::1'];
@@ -117,8 +117,8 @@ async function login() {
    const value = url.searchParams.get('code');
    const html = (status, title, text) => response.writeHead(status, { 'Content-Type': 'text/html; charset=utf-8' }).end(page(title, text));
    if (error) { html(400, 'Sign-in failed', error); current.fail(failure(error)); return; }
-   if (!value || url.searchParams.get('state') !== state) { html(400, 'Sign-in failed', 'The answer did not match this sign-in. Try again from OpenGhost.'); current.fail(failure('Sign-in did not match, try again')); return; }
-   html(200, 'Signed in to OpenGhost', 'You can close this tab and go back to the app.');
+   if (!value || url.searchParams.get('state') !== state) { html(400, 'Sign-in failed', 'The answer did not match this sign-in. Try again from Open Shadow.'); current.fail(failure('Sign-in did not match, try again')); return; }
+   html(200, 'Signed in to Open Shadow', 'You can close this tab and go back to the app.');
    current.done(value);
   };
   // Both loopback addresses listen, since the browser may resolve localhost to either.

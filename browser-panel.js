@@ -2,15 +2,15 @@
 'use strict';
 
 const PARTITION = 'persist:browser';
-const STORE = 'openghost.browser';
-const ACCOUNTS = 'openghost.browser.accounts';
+const STORE = 'openshadow.browser';
+const ACCOUNTS = 'openshadow.browser.accounts';
 const TABS_MAX = 12;
 const WIDTH = { share: 0.44, min: 360, chat: 400 };
 const CURSOR = { hide: 2600 };
 const TOAST_TIME = 4200;
 const EASE = 'cubic-bezier(0.32, 0.72, 0, 1)';
-const bridge = window.openghost?.browser || null;
-const tools = window.openghost?.tools || null;
+const bridge = window.openshadow?.browser || null;
+const tools = window.openshadow?.tools || null;
 
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const svg = body => `<svg viewBox="30 30 60 60" fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
@@ -108,10 +108,10 @@ class BrowserPanel {
     </div>
     <div class="browser-stage">
      <div class="browser-progress" aria-hidden="true"></div>
-     <div class="browser-empty">${Glyphs.ghost}<p>${I18n.t('browser.empty')}</p></div>
+     <div class="browser-empty">${Glyphs.umbra}<p>${I18n.t('browser.empty')}</p></div>
      <div class="browser-error" hidden><p class="browser-error-title">${I18n.t('browser.failed')}</p><p class="browser-error-code"></p><button type="button" class="browser-pill">${I18n.t('browser.retry')}</button></div>
      <div class="browser-agent" aria-hidden="true">
-      <div class="browser-badge">${Glyphs.ghost}<span>${I18n.t('browser.driving')}</span></div>
+      <div class="browser-badge">${Glyphs.umbra}<span>${I18n.t('browser.driving')}</span></div>
       <button type="button" class="browser-take browser-pill">${I18n.t('browser.take')}</button>
      </div>
      <div class="browser-cursor" aria-hidden="true"><img class="browser-cursor-arrow" src="desktop/cursor.png" alt=""></div>

@@ -16,7 +16,7 @@ const TITLE_PROMPT = 'Name this conversation in 2 to 5 words in the language of 
 const TITLE_INPUT = { user: 1500, reply: 800, max: 60 };
 const CONTEXT = { reserve: 0.1, chars: 3.2, image: 1200 };
 const COMPACT = {
- prompt: 'You compress a long conversation between a user and OpenGhost, an AI agent working on the user\'s computer, so the work can go on without the original messages. Write a dense summary in the language the user writes in, with these parts: the user\'s goals and preferences; key facts, decisions and constraints; what has been done, with file paths, commands and their results, commits; the current state and open problems; the exact next steps. Keep names, paths, numbers, versions and code identifiers exact. Leave out small talk and whatever no longer matters.',
+ prompt: 'You compress a long conversation between a user and Open Shadow, an AI agent working on the user\'s computer, so the work can go on without the original messages. Write a dense summary in the language the user writes in, with these parts: the user\'s goals and preferences; key facts, decisions and constraints; what has been done, with file paths, commands and their results, commits; the current state and open problems; the exact next steps. Keep names, paths, numbers, versions and code identifiers exact. Leave out small talk and whatever no longer matters.',
  head: 'The earlier part of this conversation was compacted to save context. Your tools, formatting rules and browser instructions still apply; this summary does not replace them. Summary of it:',
  resume: 'Go on with the task from where you stopped, using the summary above.',
  output: 8000,
@@ -185,12 +185,12 @@ function transcript(entries) {
  for (const entry of entries) {
   if (entry.role === 'compact') out.push(`[Summary of what came before]\n${entry.summary}`);
   else if (entry.role === 'user') out.push(`User: ${cut(textOf(entry.content) || entry.text || '', COMPACT.text)}`);
-  else if (entry.role === 'assistant' && !entry.steps) out.push(`OpenGhost: ${cut(entry.content || '', COMPACT.text)}`);
+  else if (entry.role === 'assistant' && !entry.steps) out.push(`Open Shadow: ${cut(entry.content || '', COMPACT.text)}`);
   else if (entry.role === 'assistant') {
    for (const step of entry.steps) {
     if (step.role === 'tool') { out.push(`[Result] ${cut(step.content, COMPACT.tool)}`); continue; }
     if (step.role === 'user') { out.push(`[${step.content.filter(part => part.type === 'image_url').length} pictures from the tools were shown]`); continue; }
-    if (step.content) out.push(`OpenGhost: ${cut(step.content, COMPACT.text)}`);
+    if (step.content) out.push(`Open Shadow: ${cut(step.content, COMPACT.text)}`);
     for (const call of step.tool_calls || []) out.push(`[Tool ${call.function.name}] ${cut(call.function.arguments, COMPACT.tool)}`);
    }
   }
@@ -739,7 +739,7 @@ class Chat {
    conv.list.append(bubble, turn.next.el);
   }
   turn.queue.push({ prompt, bubble });
-  this.dismissGhost(turn.part.view);
+  this.dismissOrb(turn.part.view);
   for (const pending of turn.approvals) pending.card.settle(TOOL_NOTES.message);
   turn.release?.('message');
  }
@@ -834,7 +834,7 @@ class Chat {
      if (!stream.content.trim()) return;
      turn.text = true;
      part.entry.content = join(base, stream.content);
-     this.dismissGhost(view);
+     this.dismissOrb(view);
      view.stream.push(part.entry.content);
     },
    });
@@ -846,7 +846,7 @@ class Chat {
   const usage = result.usage;
   conv.tokens = usage ? usage.total_tokens || usage.prompt_tokens + usage.completion_tokens : estimate(messages) + estimate([part.entry.steps.at(-1)]);
   const calls = part.entry.steps.at(-1).tool_calls || [];
-  if (calls.length) this.showGhost(turn.next || view);
+  if (calls.length) this.showOrb(turn.next || view);
   return { part, calls, finish: result.finishReason };
  }
 
@@ -864,7 +864,7 @@ class Chat {
    if (answer !== 'allow') return answer === 'deny' ? TOOL_NOTES.declined : answer;
   }
   if (turn.controller.signal.aborted) return TOOL_NOTES.cancelled;
-  this.showGhost(turn.next || view);
+  this.showOrb(turn.next || view);
   const panel = name.startsWith('browser_') ? window.browserPanel : null;
   let handed = false;
   if (panel) {
@@ -895,7 +895,7 @@ class Chat {
  }
 
  async approve(conv, turn, view, request) {
-  this.dismissGhost(view);
+  this.dismissOrb(view);
   const card = new ApprovalCard(AgentTools.describe(request.name, request.args, request.cwd));
   const pending = { ...request, card };
   view.el.append(card.el);
@@ -931,7 +931,7 @@ class Chat {
  }
 
  closePart(conv, { view, entry }) {
-  this.dismissGhost(view);
+  this.dismissOrb(view);
   if (!entry.steps.length && !entry.content) drop(conv.messages, entry);
   view.stream.finish().then(() => {
    view.el.classList.remove('is-streaming');
@@ -963,7 +963,7 @@ class Chat {
    if (turn.text && !conv.record.named) this.name(conv, turn.config);
   }
   if (conv !== this.active) conv.unread = true;
-  this.dismissGhost(view);
+  this.dismissOrb(view);
   this.onChange();
   await view.stream.finish();
   view.el.classList.remove('is-streaming');
@@ -1125,7 +1125,7 @@ class Chat {
   return tools;
  }
 
- showGhost(view) {
+ showOrb(view) {
   const current = view.status;
   if (current?.isConnected && !current.classList.contains('is-leaving')) {
    if (current !== view.el.lastElementChild && view.content.hasChildNodes()) view.el.append(current);
@@ -1133,13 +1133,13 @@ class Chat {
   }
   const status = document.createElement('div');
   status.className = 'message-status is-working';
-  status.innerHTML = '<ghost-thinking></ghost-thinking>';
+  status.innerHTML = '<shadow-orb></shadow-orb>';
   view.el.append(status);
   view.status = status;
   if (view.el.closest('.thread-list') === this.active?.list) this.followBottom();
  }
 
- dismissGhost(view) {
+ dismissOrb(view) {
   const status = view.status;
   if (!status?.isConnected || status.classList.contains('is-leaving')) return;
   status.classList.add('is-leaving');
@@ -1255,7 +1255,7 @@ class Chat {
  assistantMessage(conv) {
   const el = document.createElement('div');
   el.className = 'message is-assistant is-streaming';
-  el.innerHTML = '<div class="message-status"><ghost-thinking></ghost-thinking></div><div class="message-content markdown"></div>';
+  el.innerHTML = '<div class="message-status"><shadow-orb></shadow-orb></div><div class="message-content markdown"></div>';
   const content = el.querySelector('.message-content');
   return { el, status: el.querySelector('.message-status'), content, stream: new StreamView(content, { onChange: () => { if (conv === this.active) this.followBottom(); } }) };
  }

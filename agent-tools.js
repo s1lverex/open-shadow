@@ -5,7 +5,7 @@ const PAGE_CHARS = 40000;
 const SEARCH_RESULTS = 8;
 const MODES = ['ask', 'auto', 'full'];
 
-const bridge = window.openghost?.tools || null;
+const bridge = window.openshadow?.tools || null;
 
 const fn = (name, description, properties, required = []) => ({
  type: 'function',

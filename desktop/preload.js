@@ -2,7 +2,7 @@
 
 const { contextBridge, ipcRenderer } = require('electron');
 
-contextBridge.exposeInMainWorld('openghost', {
+contextBridge.exposeInMainWorld('openshadow', {
  desktop: true,
  platform: process.platform,
  pickFolder: () => ipcRenderer.invoke('folder:pick'),

@@ -26,7 +26,7 @@ const PRELUDE = [
  "if ($PSStyle) { $PSStyle.OutputRendering = 'PlainText' }",
  '',
 ].join('\n');
-const EPILOGUE = '\n$openghostOk = $?\nif (-not $openghostOk) { if ($LASTEXITCODE) { exit $LASTEXITCODE }; exit 1 }\nexit 0\n';
+const EPILOGUE = '\n$openshadowOk = $?\nif (-not $openshadowOk) { if ($LASTEXITCODE) { exit $LASTEXITCODE }; exit 1 }\nexit 0\n';
 
 const ENV = Object.fromEntries(Object.entries(process.env).filter(([name]) => !/^(ELECTRON_|npm_)/i.test(name)));
 Object.assign(ENV, { NO_COLOR: '1', FORCE_COLOR: '0', GIT_TERMINAL_PROMPT: '0', GIT_PAGER: 'cat', PAGER: 'cat', PYTHONIOENCODING: 'utf-8', PYTHONUTF8: '1' });
@@ -155,7 +155,7 @@ function decode(buffer, charset = 'utf-8') {
 async function runShell(id, { command, timeout }, cwd) {
  if (typeof command !== 'string' || !command.trim()) return { error: 'command is empty' };
  const { exe } = await detectShell();
- const dir = path.join(os.tmpdir(), 'openghost');
+ const dir = path.join(os.tmpdir(), 'openshadow');
  await fs.promises.mkdir(dir, { recursive: true });
  const file = path.join(dir, `command-${process.pid}-${String(id).replace(/[^\w-]/g, '')}.ps1`);
  await fs.promises.writeFile(file, `\ufeff${PRELUDE}${command}${EPILOGUE}`, 'utf8');
@@ -273,7 +273,7 @@ async function runGit(id, { args }, cwd) {
  if (args[0] === 'git') args = args.slice(1);
  if (!(await detectGit())) return { missing: true };
  const flags = ['-c', 'core.quotepath=off', '-c', 'color.ui=never', '-c', 'core.pager=cat'];
- if (IDENTITY.has(args[0]) && !(await hasIdentity(cwd))) flags.push('-c', 'user.name=OpenGhost', '-c', 'user.email=openghost@localhost');
+ if (IDENTITY.has(args[0]) && !(await hasIdentity(cwd))) flags.push('-c', 'user.name=Open Shadow', '-c', 'user.email=openshadow@localhost');
  const result = await run(id, 'git', [...flags, ...args], { cwd, timeout: TIMEOUT.git });
  if (result.missing) return { missing: true };
  if (result.error && result.code === null) return { error: result.error };

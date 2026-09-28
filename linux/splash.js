@@ -2,16 +2,17 @@
 'use strict';
 
 const APP_BAR = '#161616';
-const FLY = { delay: 160, duration: 980, x: 'cubic-bezier(0.2, 0.75, 0.3, 1)', y: 'cubic-bezier(0.55, 0, 0.25, 1)', turn: 'cubic-bezier(0.33, 0, 0.3, 1)' };
-const SHIFT = { duration: 640, easing: 'cubic-bezier(0.32, 0.72, 0, 1)' };
-const WORD = { gap: 22, delay: 90, stagger: 34, duration: 480, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
-const HOLD = 520;
-const OPEN = { duration: 760, easing: 'cubic-bezier(0.32, 0.72, 0, 1)' };
-const GAZE = { fly: [3.2, -2.2], word: [4, 0.4], land: [0, 1.4] };
+const T = {
+ drop: { start: 160, end: 900 },
+ form: { start: 620, end: 1200 },
+ word: { start: 1050, stagger: 34, duration: 480 },
+ glide: { start: 1600, end: 2200 },
+};
+const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
 const root = document.documentElement;
 const splash = document.querySelector('.splash');
-const bar = color => window.openghost?.setTitleBar?.(color);
+const bar = color => window.openshadow?.setTitleBar?.(color);
 
 function finish() {
  root.classList.remove('is-splash');
@@ -27,12 +28,21 @@ if (!splash || !root.classList.contains('is-splash')) {
 let skip = null;
 const skipped = new Promise(resolve => { skip = resolve; });
 const wait = ms => Promise.race([new Promise(resolve => setTimeout(resolve, ms)), skipped]);
-const settle = () => { for (const animation of splash.getAnimations({ subtree: true })) animation.finish(); };
+const settle = () => {
+ for (const animation of splash.getAnimations({ subtree: true })) {
+  try { animation.finish(); } catch { /* infinite animations have no end to jump to */ }
+ }
+};
 
 async function play() {
- const fly = splash.querySelector('.splash-fly'), box = splash.querySelector('.splash-ghost'), body = splash.querySelector('.splash-ghost-body');
- const word = splash.querySelector('.splash-word'), ghost = splash.querySelector('ghost-thinking');
- await customElements.whenDefined('ghost-thinking');
+ const drop = splash.querySelector('.splash-drop');
+ const trail = drop?.querySelector('.splash-trail');
+ const ripple = drop?.querySelector('.splash-ripple');
+ const fly = splash.querySelector('.splash-fly');
+ const word = splash.querySelector('.splash-word');
+ const orb = splash.querySelector('shadow-orb');
+ await customElements.whenDefined('shadow-orb');
+
  const letters = [...word.textContent].map(char => {
   const letter = document.createElement('span');
   letter.textContent = char;
@@ -40,49 +50,57 @@ async function play() {
  });
  word.replaceChildren(...letters);
 
- const size = fly.offsetWidth, from = { x: -(innerWidth / 2 + size), y: innerHeight / 2 + size };
- const timing = { delay: FLY.delay, duration: FLY.duration, fill: 'both' };
- ghost.look(...GAZE.fly, FLY.delay + FLY.duration);
- const arrive = box.animate({ translate: [`${from.x}px 0`, '0 0'] }, { ...timing, easing: FLY.x });
- body.animate({ translate: [`0 ${from.y}px`, '0 0'] }, { ...timing, easing: FLY.y });
- body.animate([{ scale: 0.26, rotate: '-30deg' }, { scale: 1.05, rotate: '5deg', offset: 0.8 }, { scale: 1, rotate: '0deg' }], { ...timing, easing: FLY.turn });
- await Promise.race([arrive.finished, skipped]);
+ // 1. hold on `.splash-bg`; 2. the drop falls from above centre and lands at 900 ms.
+ const fall = 60 + innerHeight * 0.7;
+ drop?.animate([
+  { transform: `translateY(${-fall}px)`, opacity: 0 },
+  { transform: 'translateY(0px)', opacity: 1, offset: 0.18 },
+  { transform: 'translateY(0px)', opacity: 1 },
+ ], { delay: T.drop.start, duration: T.drop.end - T.drop.start, easing: 'cubic-bezier(0.55, 0, 0.75, 0.35)', fill: 'both' });
+ trail?.animate([
+  { transform: 'scaleY(0)', opacity: 0 },
+  { transform: 'scaleY(1)', opacity: 1, offset: 0.35 },
+  { transform: 'scaleY(0)', opacity: 0 },
+ ], { delay: T.drop.start, duration: T.drop.end - T.drop.start, easing: 'ease-in', fill: 'both' });
+ ripple?.animate([
+  { transform: 'scale(0.9)', opacity: 1 },
+  { transform: 'scale(1.6)', opacity: 0 },
+ ], { delay: T.drop.end, duration: 600, easing: 'cubic-bezier(0.2, 0.7, 0.3, 1)', fill: 'forwards' });
+ drop?.animate([{ opacity: 1 }, { opacity: 0 }], { delay: T.drop.end + 120, duration: 240, fill: 'forwards' });
 
- const shift = (WORD.gap + word.offsetWidth) / 2;
- word.style.left = `calc(50% - ${shift}px + ${size / 2 + WORD.gap}px)`;
- ghost.look(...GAZE.word, 2000);
- box.animate({ translate: ['0 0', `${-shift}px 0`] }, { ...SHIFT, fill: 'forwards' });
- letters.forEach((letter, k) => letter.animate(
-  [{ opacity: 0, transform: 'translateX(-12px)', filter: 'blur(6px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }],
-  { duration: WORD.duration, delay: WORD.delay + k * WORD.stagger, easing: WORD.easing, fill: 'both' },
+ // 3. the orb forms and 4. its motes ignite (the element runs both from the host classes).
+ orb?.classList.add('is-forming', 'is-lit');
+ orb?.animate([
+  { transform: 'scale(0.2)', opacity: 0 },
+  { transform: 'scale(1)', opacity: 1 },
+ ], { delay: T.form.start, duration: T.form.end - T.form.start, easing: EASE, fill: 'both' });
+
+ // 5. the wordmark rises per letter.
+ letters.forEach((letter, i) => letter.animate(
+  [{ opacity: 0, transform: 'translateY(14px)', filter: 'blur(6px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }],
+  { delay: T.word.start + i * T.word.stagger, duration: T.word.duration, easing: EASE, fill: 'both' },
  ));
- await wait(WORD.delay + letters.length * WORD.stagger + WORD.duration + HOLD);
- settle();
- await open(fly, word, ghost);
- finish();
-}
 
-function open(fly, word, ghost) {
+ // 6. the orb glides to the title-bar mark, the splash fades and the title bar takes the app colour.
+ await wait(T.glide.start);
+ if (!splash.isConnected) return;
  splash.classList.add('is-opening');
- const welcome = document.querySelector('.main.is-empty .welcome'), mark = welcome?.querySelector('ghost-thinking');
- for (const animation of welcome?.getAnimations() || []) animation.finish();
- const target = welcome && getComputedStyle(welcome).display !== 'none' ? welcome.querySelector('.welcome-flight').getBoundingClientRect() : null;
- const now = fly.getBoundingClientRect(), current = splash.querySelector('.splash-ghost-body').getBoundingClientRect();
- const app = document.querySelector('.app');
- word.animate([{ opacity: 1, filter: 'blur(0)' }, { opacity: 0, filter: 'blur(8px)' }], { duration: 320, easing: 'ease-in', fill: 'forwards' });
- splash.querySelector('.splash-bg').animate([{ opacity: 1 }, { opacity: 0 }], { duration: OPEN.duration, delay: 80, easing: 'ease', fill: 'forwards' });
- app.animate([{ opacity: 0, transform: 'scale(0.975)' }, { opacity: 1, transform: 'none' }], OPEN);
- setTimeout(() => bar(APP_BAR), OPEN.duration / 2);
- if (!target) return fly.animate([{ opacity: 1 }, { opacity: 0, transform: 'scale(0.8)' }], { ...OPEN, fill: 'forwards' }).finished;
- const s = target.width / current.width, origin = { x: now.left + now.width / 2, y: now.top + now.height / 2 };
- const center = { x: current.left + current.width / 2, y: current.top + current.height / 2 };
- const dx = target.left + target.width / 2 - origin.x - s * (center.x - origin.x), dy = target.top + target.height / 2 - origin.y - s * (center.y - origin.y);
- ghost.look(...GAZE.land, OPEN.duration + 400);
- if (mark) {
-  mark.start = ghost.start;
-  mark.look?.(...GAZE.land, OPEN.duration + 1200);
+ const mark = document.querySelector('.titlebar-name .glyph-orb') || document.querySelector('.titlebar-name');
+ const from = fly.getBoundingClientRect(), to = mark?.getBoundingClientRect();
+ let end = 'translate(0, 0) scale(1)';
+ if (to) {
+  const dx = to.left + to.width / 2 - (from.left + from.width / 2);
+  const dy = to.top + to.height / 2 - (from.top + from.height / 2);
+  end = `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) scale(0.42)`;
  }
- return fly.animate({ translate: ['0 0', `${dx}px ${dy}px`], scale: [1, s] }, { ...OPEN, fill: 'forwards' }).finished;
+ fly.animate([{ transform: 'translate(0, 0) scale(1)' }, { transform: end }], { duration: T.glide.end - T.glide.start, easing: 'cubic-bezier(0.32, 0.72, 0, 1)', fill: 'both' });
+ word.animate([{ opacity: 1, filter: 'blur(0)' }, { opacity: 0, filter: 'blur(6px)' }], { delay: T.glide.start + 40, duration: 420, easing: 'ease-in', fill: 'both' });
+ splash.querySelector('.splash-bg')?.animate([{ opacity: 1 }, { opacity: 0 }], { delay: T.glide.start + 160, duration: T.glide.end - T.glide.start - 160, easing: 'ease', fill: 'both' });
+ setTimeout(() => bar(APP_BAR), T.glide.start + (T.glide.end - T.glide.start) / 2);
+
+ await wait(T.glide.end);
+ settle();
+ finish();
 }
 
 splash.addEventListener('pointerdown', () => skip());

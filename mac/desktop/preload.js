@@ -2,7 +2,7 @@
 
 const { contextBridge, ipcRenderer } = require('electron');
 
-contextBridge.exposeInMainWorld('openghost', {
+contextBridge.exposeInMainWorld('openshadow', {
  desktop: true,
  platform: process.platform,
  pickFolder: () => ipcRenderer.invoke('folder:pick'),
@@ -26,7 +26,8 @@ contextBridge.exposeInMainWorld('openghost', {
   start: (id, request) => ipcRenderer.send('llm:start', id, request),
   abort: id => ipcRenderer.send('llm:abort', id),
   onEvent: callback => ipcRenderer.on('llm:event', (event, data) => callback(data)),
-  models: (provider, key) => ipcRenderer.invoke('llm:models', provider, key),
+  models: (provider, key, apiUrl) => ipcRenderer.invoke('llm:models', provider, key, apiUrl),
+  providers: () => ipcRenderer.invoke('llm:providers'),
  },
  auth: {
   login: () => ipcRenderer.invoke('auth:login'),

@@ -39,7 +39,7 @@ function memoryLibrary() {
 
 const TEMPLATE = `
  <header class="mini-head">
-  <span class="mini-title">${'{ghost}'}<span data-i18n="mini.title"></span></span>
+  <span class="mini-title">${'{orb}'}<span data-i18n="mini.title"></span></span>
   <span class="mini-hint" data-i18n="mini.hint"></span>
   <close-button class="mini-close"></close-button>
  </header>
@@ -49,7 +49,7 @@ const TEMPLATE = `
    <div class="scrollbar thread-scrollbar" aria-hidden="true"><div class="scrollbar-thumb"></div></div>
    <scroll-button class="thread-bottom glass-lens"></scroll-button>
   </div>
-  <div class="mini-empty" aria-hidden="true"><ghost-thinking></ghost-thinking><p data-i18n="mini.empty"></p></div>
+  <div class="mini-empty" aria-hidden="true"><shadow-orb></shadow-orb><p data-i18n="mini.empty"></p></div>
   <div class="drop-zone" aria-hidden="true">
    <div class="drop-art"></div>
    <div class="drop-title" data-i18n="drop.title"></div>
@@ -61,7 +61,7 @@ const TEMPLATE = `
    <div class="composer-field">
     <div class="composer-placeholder" aria-hidden="true" data-i18n="mini.placeholder"></div>
     <div class="composer-mirror" aria-hidden="true"><div class="composer-mirror-lines"></div></div>
-    <div class="composer-ghosts" aria-hidden="true"></div>
+    <div class="composer-orbs" aria-hidden="true"></div>
     <textarea class="composer-input" data-i18n-attr="aria-label:composer.label"></textarea>
     <div class="scrollbar composer-scrollbar" aria-hidden="true"><div class="scrollbar-thumb"></div></div>
    </div>
@@ -87,7 +87,7 @@ class MiniChat {
   const dialog = this.dialog = document.createElement('dialog');
   dialog.className = 'mini';
   dialog.setAttribute('closedby', 'closerequest');
-  dialog.innerHTML = TEMPLATE.replace('{ghost}', Glyphs.ghost);
+  dialog.innerHTML = TEMPLATE.replace('{orb}', Glyphs.umbra);
   dialog.__mini = this;
   I18n.apply(dialog);
   dialog.setAttribute('aria-label', I18n.t('mini.title'));

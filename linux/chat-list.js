@@ -6,7 +6,7 @@ const FADE_SPRING = [320, 32];
 const FLIP = { duration: 440, easing: 'cubic-bezier(0.32, 0.72, 0, 1)' };
 const ENTER = { duration: 420, easing: 'cubic-bezier(0.32, 0.72, 0, 1)' };
 const REMOVE = { duration: 320, easing: 'cubic-bezier(0.32, 0.72, 0, 1)', fill: 'forwards' };
-const GHOST = { enter: 420, leave: 220, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' };
+const ORB = { enter: 420, leave: 220, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' };
 const COLLAPSE_TIME = 480;
 const CONFIRM_TIME = 3000;
 const CLOCK = 30000;
@@ -163,7 +163,7 @@ class ChatList {
   actions.append(lock, pin, remove);
   meta.append(time, actions);
   row.append(mark, title, meta);
-  return { row, mark, title, time, lock, pin, remove, ghost: null, pinned: null, guarded: null, locked: null, veil: 0, confirm: false, timer: 0 };
+  return { row, mark, title, time, lock, pin, remove, orb: null, pinned: null, guarded: null, locked: null, veil: 0, confirm: false, timer: 0 };
  }
 
  paint(item, chat) {
@@ -212,16 +212,16 @@ class ChatList {
 
  busy(item, on) {
   item.row.classList.toggle('is-busy', on);
-  if (on && !item.ghost) {
-   const ghost = item.ghost = document.createElement('ghost-thinking');
-   item.mark.append(ghost);
-   if (!reducedMotion()) ghost.animate([{ opacity: 0, transform: 'scale(0.3)' }, { opacity: 1, transform: 'none' }], { duration: GHOST.enter, easing: GHOST.easing });
-  } else if (!on && item.ghost) {
-   const ghost = item.ghost;
-   item.ghost = null;
-   if (reducedMotion()) { ghost.remove(); return; }
-   ghost.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(0.4)' }], { duration: GHOST.leave, easing: 'ease-in', fill: 'forwards' })
-    .finished.then(() => ghost.remove(), () => ghost.remove());
+  if (on && !item.orb) {
+   const orb = item.orb = document.createElement('shadow-orb');
+   item.mark.append(orb);
+   if (!reducedMotion()) orb.animate([{ opacity: 0, transform: 'scale(0.3)' }, { opacity: 1, transform: 'none' }], { duration: ORB.enter, easing: ORB.easing });
+  } else if (!on && item.orb) {
+   const orb = item.orb;
+   item.orb = null;
+   if (reducedMotion()) { orb.remove(); return; }
+   orb.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(0.4)' }], { duration: ORB.leave, easing: 'ease-in', fill: 'forwards' })
+    .finished.then(() => orb.remove(), () => orb.remove());
   }
  }
 
@@ -263,7 +263,7 @@ class ChatList {
   for (const [id, item] of this.rows) {
    if (seen.has(id)) continue;
    clearTimeout(item.timer);
-   item.ghost?.remove();
+   item.orb?.remove();
    this.rows.delete(id);
   }
   this.flip(before);

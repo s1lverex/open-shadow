@@ -7,7 +7,7 @@ const Tools = require('./tools');
 const Browser = require('./browser');
 const LLM = require('./llm');
 
-const APP_ID = 'com.openghost.app';
+const APP_ID = 'com.openshadow.app';
 const ROOT = path.join(__dirname, '..');
 // Windows takes the .ico; macOS and Linux take the .png.
 const ICON = path.join(__dirname, process.platform === 'win32' ? 'icon.ico' : 'icon.png');
@@ -21,7 +21,7 @@ nativeTheme.themeSource = 'dark';
 Menu.setApplicationMenu(null);
 
 function createShortcut() {
- const link = path.join(app.getPath('desktop'), 'OpenGhost.lnk');
+ const link = path.join(app.getPath('desktop'), 'Open Shadow.lnk');
  const ok = shell.writeShortcutLink(link, 'create', {
   target: process.execPath,
   args: `"${ROOT}"`,
@@ -29,7 +29,7 @@ function createShortcut() {
   icon: ICON,
   iconIndex: 0,
   appUserModelId: APP_ID,
-  description: 'OpenGhost',
+  description: 'Open Shadow',
  });
  console.log(ok ? `Shortcut: ${link}` : 'Could not create the shortcut');
 }
@@ -81,7 +81,7 @@ function createWindow() {
   minWidth: 760,
   minHeight: 540,
   show: false,
-  title: 'OpenGhost',
+  title: 'Open Shadow',
   icon: ICON,
   backgroundColor: CHAT_BG,
   // Linux window managers draw their own title bar; Windows and macOS get the app's own.

@@ -99,7 +99,7 @@ class EffortSlider {
   else if (!this.locked) this.open();
  }
 
- // While OpenGhost works the effort stays as the turn started with it.
+ // While Open Shadow works the effort stays as the turn started with it.
  lock(locked) {
   if (locked === this.locked) return;
   this.locked = locked;

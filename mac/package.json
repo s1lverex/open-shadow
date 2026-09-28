@@ -1,9 +1,9 @@
 {
-  "name": "openghost",
-  "productName": "OpenGhost",
+  "name": "openshadow",
+  "productName": "Open Shadow",
   "version": "1.1.0",
   "private": true,
-  "description": "OpenGhost",
+  "description": "Open Shadow",
   "main": "desktop/main.js",
   "scripts": {
     "start": "electron .",
@@ -17,8 +17,8 @@
     "electron-builder": "^26.15.3"
   },
   "build": {
-    "appId": "com.openghost.app",
-    "productName": "OpenGhost",
+    "appId": "com.openshadow.app",
+    "productName": "Open Shadow",
     "icon": "desktop/icon.ico",
     "directories": {
       "output": "dist"
@@ -39,25 +39,26 @@
       "allowToChangeInstallationDirectory": false,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "OpenGhost",
-      "artifactName": "OpenGhost-${version}-Setup.exe",
-      "uninstallDisplayName": "OpenGhost"
+      "shortcutName": "Open Shadow",
+      "artifactName": "OpenShadow-${version}-Setup.exe",
+      "uninstallDisplayName": "Open Shadow"
     },
     "mac": {
       "target": "dmg",
       "icon": "desktop/icon.png",
       "category": "public.app-category.utilities",
-      "artifactName": "OpenGhost-${version}-mac.${ext}",
+      "artifactName": "OpenShadow-${version}-mac.${ext}",
       "identity": null
     },
     "linux": {
       "target": "tar.gz",
       "icon": "desktop/icon.png",
       "category": "Utility",
-      "artifactName": "OpenGhost-${version}-linux.${ext}"
+      "artifactName": "OpenShadow-${version}-linux.${ext}"
     }
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0"
-  }
+  },
+  "dist": "electron-builder --mac dmg --universal"
 }

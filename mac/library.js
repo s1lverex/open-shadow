@@ -74,8 +74,8 @@ class Library {
 
  async pick() {
   let picked = null;
-  if (window.openghost?.pickFolder) {
-   picked = await window.openghost.pickFolder();
+  if (window.openshadow?.pickFolder) {
+   picked = await window.openshadow.pickFolder();
   } else if (window.showDirectoryPicker) {
    try {
     const handle = await window.showDirectoryPicker({ mode: 'read' });

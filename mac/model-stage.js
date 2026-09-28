@@ -24,7 +24,7 @@ const MARK = 30;
 const ROOM = { top: 52, right: 68, bottom: 10 };
 // Many models turn the list into a drum: rows away from its middle drift right, tilt and shrink a little.
 const DRUM = { reach: 320, shift: 34, tilt: 3.2, shrink: 0.07 };
-const GROUPS = { chatgpt: 'ChatGPT', openai: 'OpenAI API', anthropic: 'Anthropic', deepseek: 'DeepSeek' };
+const GROUPS = { deepseek: 'DeepSeek', openai: 'OpenAI API', chatgpt: 'ChatGPT', anthropic: 'Anthropic', mimo: 'Xiaomi MiMo', moonshot: 'Moonshot Kimi', qwen: 'Qwen (DashScope)', groq: 'Groq', openrouter: 'OpenRouter', xai: 'xAI Grok', gemini: 'Google Gemini', custom: 'Custom' };
 
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const escapeHtml = text => text.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -58,7 +58,7 @@ function meta(model) {
  ].filter(Boolean).join(' · ');
 }
 
-// The glyph travels on a curve, bent to one side like the ghost's flights, growing or shrinking on the way.
+// The glyph travels on a curve, bent to one side like the orb's flights, growing or shrinking on the way.
 function arc(el, from, to, { duration, delay = 0, spin = ARC.spin, bend = ARC.bend, easing = EASE.flight }) {
  const box = el.offsetWidth, dx = to.x - from.x, dy = to.y - from.y;
  const c = { x: (from.x + to.x) / 2 - dy * bend, y: (from.y + to.y) / 2 + dx * bend };

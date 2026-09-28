@@ -1,7 +1,7 @@
 (() => {
 'use strict';
 
-const PREFIX = 'openghost:';
+const PREFIX = 'openshadow:';
 
 const local = {
  async read(key) {
@@ -15,5 +15,5 @@ const local = {
  },
 };
 
-window.ChatStore = window.openghost?.store || local;
+window.ChatStore = window.openshadow?.store || local;
 })();

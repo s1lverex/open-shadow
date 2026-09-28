@@ -14,6 +14,7 @@ const PROVIDERS = { has: id => providers.has(id) };
 
 const engine = id => {
  const kind = providers.get(id)?.kind;
+ if (kind === 'inpage') throw new Error(`Unknown provider: ${id}`);
  if (kind === 'anthropic-sdk') return Claude;
  if (kind === 'chat') return Chat;
  return OpenAI;

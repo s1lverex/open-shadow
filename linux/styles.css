@@ -161,14 +161,10 @@ body {
   user-select: none;
 }
 
-.titlebar-name .glyph-ghost {
-  width: 12px;
+.titlebar-name .glyph-orb {
+  width: 13px;
   height: 13px;
   color: rgba(var(--fg-rgb), 0.78);
-}
-
-.glyph-ghost-eye {
-  fill: var(--app-bg);
 }
 
 .is-desktop .app {
@@ -199,23 +195,60 @@ body {
   background: var(--chat-bg);
 }
 
+.splash-drop {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+}
+
+.splash-drop::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #101014;
+  box-shadow: 0 0 18px 6px rgba(139, 124, 246, 0.25);
+}
+
+.splash-trail {
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  width: 2px;
+  height: 120px;
+  margin-left: -1px;
+  border-radius: 2px;
+  background: linear-gradient(to bottom, transparent, rgba(139, 124, 246, 0.7));
+  transform-origin: bottom center;
+}
+
+.splash-ripple {
+  position: absolute;
+  inset: -14px;
+  border-radius: 50%;
+  border: 1.6px solid rgba(139, 124, 246, 0.7);
+  opacity: 0;
+}
+
 .splash-fly {
   position: absolute;
   top: 50%;
   left: 50%;
   width: var(--splash-size);
-  height: calc(var(--splash-size) * 70 / 64);
-  margin: calc(var(--splash-size) * -35 / 64) 0 0 calc(var(--splash-size) / -2);
+  height: var(--splash-size);
+  margin: calc(var(--splash-size) / -2) 0 0 calc(var(--splash-size) / -2);
 }
 
-.splash-ghost {
+.splash-orb {
   width: 100%;
   height: 100%;
-  translate: calc(-50vw - 2 * var(--splash-size)) 0;
 }
 
-.splash-ghost-body,
-.splash ghost-thinking {
+.splash-orb-body,
+.splash shadow-orb {
   width: 100%;
   height: 100%;
 }
@@ -225,6 +258,7 @@ body {
   top: 50%;
   left: 50%;
   color: rgb(var(--composer-accent-rgb));
+  text-transform: uppercase;
   font-size: 46px;
   font-weight: 650;
   line-height: 1;
@@ -646,14 +680,14 @@ body {
   transform: scale(0.5);
 }
 
-.chat-mark ghost-thinking {
+.chat-mark shadow-orb {
   position: absolute;
   top: 0.5px;
   left: 1.5px;
   width: 15px;
-  height: 16.4px;
-  --ghost-rgb: var(--composer-accent-rgb);
-  --ghost-eye: var(--app-bg);
+  height: 15px;
+  --orb-rgb: var(--composer-accent-rgb);
+  --orb-eye: var(--app-bg);
 }
 
 /* On hover the row makes room for its two buttons: the title's end glides back, the time fades and the buttons pop in one after the other.
@@ -1195,7 +1229,7 @@ body {
 
 .message-status {
   transform-origin: left top;
-  animation: ghost-in 0.45s var(--motion-easing) both;
+  animation: orb-in 0.45s var(--motion-easing) both;
 }
 
 .message-status.is-leaving {
@@ -1206,18 +1240,18 @@ body {
   opacity: 0;
 }
 
-@keyframes ghost-in {
+@keyframes orb-in {
   from {
     opacity: 0;
     transform: translateY(6px) scale(0.7);
   }
 }
 
-ghost-thinking {
-  width: 30px;
-  height: 33px;
-  --ghost-rgb: var(--composer-accent-rgb);
-  --ghost-eye: var(--chat-bg);
+shadow-orb {
+  width: 31px;
+  height: 31px;
+  --orb-rgb: var(--composer-accent-rgb);
+  --orb-eye: var(--chat-bg);
 }
 
 .message-error {
@@ -1782,14 +1816,10 @@ ghost-thinking {
   font-weight: 650;
 }
 
-.mini-title .glyph-ghost {
+.mini-title .glyph-orb {
   width: 14px;
-  height: 15px;
+  height: 14px;
   color: rgb(var(--composer-accent-rgb));
-}
-
-.mini .glyph-ghost-eye {
-  fill: var(--chat-bg);
 }
 
 .mini-hint {
@@ -1880,9 +1910,9 @@ ghost-thinking {
   transition-delay: 0.08s;
 }
 
-.mini-empty ghost-thinking {
-  width: 44px;
-  height: 48px;
+.mini-empty shadow-orb {
+  width: 46px;
+  height: 46px;
 }
 
 .mini-empty p {
@@ -5381,7 +5411,7 @@ h6.md-h {
   line-height: inherit;
 }
 
-.composer-folder-ghosts {
+.composer-folder-orbs {
   position: absolute;
   inset: 0;
   pointer-events: none;
@@ -5400,11 +5430,11 @@ h6.md-h {
   }
 }
 
-.composer-folder-ghost {
+.composer-folder-orb {
   position: absolute;
   line-height: 1.5;
   white-space: pre;
-  animation: composer-ghost-out 240ms cubic-bezier(0.3, 0.7, 0.4, 1) both;
+  animation: composer-orb-out 240ms cubic-bezier(0.3, 0.7, 0.4, 1) both;
 }
 
 @property --welcome-wipe {
@@ -5450,7 +5480,7 @@ h6.md-h {
 }
 
 .welcome-flight,
-.welcome ghost-thinking {
+.welcome shadow-orb {
   width: 100%;
   height: 100%;
 }
@@ -5547,7 +5577,7 @@ h6.md-h {
   height: 100%;
 }
 
-.composer-link-ghost {
+.composer-link-orb {
   position: absolute;
   line-height: var(--composer-line-height);
   white-space: pre;
@@ -5565,21 +5595,21 @@ h6.md-h {
   position: relative;
 }
 
-.composer-ghosts {
+.composer-orbs {
   position: absolute;
   inset: 0;
   overflow: hidden;
   pointer-events: none;
 }
 
-.composer-ghost {
+.composer-orb {
   position: absolute;
   line-height: normal;
   white-space: pre;
-  animation: composer-ghost-out 240ms cubic-bezier(0.3, 0.7, 0.4, 1) both;
+  animation: composer-orb-out 240ms cubic-bezier(0.3, 0.7, 0.4, 1) both;
 }
 
-@keyframes composer-ghost-out {
+@keyframes composer-orb-out {
   to {
     opacity: 0;
     transform: translateY(-0.35em) scale(0.92);
@@ -5925,7 +5955,7 @@ h6.md-h {
   --icon-hover-opacity: 1;
 }
 
-/* Locked while OpenGhost works: the controls fade back instead of vanishing. */
+/* Locked while Open Shadow works: the controls fade back instead of vanishing. */
 .composer-effort,
 .composer-model {
   --icon-disabled-opacity: 0.3;
@@ -6240,18 +6270,18 @@ h6.md-h {
   pointer-events: none;
 }
 
-.effort-ghost {
+.effort-orb {
   position: absolute;
   z-index: 2;
-  opacity: calc(var(--ghost-appear, 0) * var(--paint-fade, 1));
+  opacity: calc(var(--orb-appear, 0) * var(--paint-fade, 1));
   pointer-events: none;
 }
 
-.effort-ghost ghost-thinking {
+.effort-orb shadow-orb {
   width: 100%;
   height: 100%;
-  --ghost-rgb: var(--composer-on-accent-rgb);
-  --ghost-eye: rgb(var(--composer-accent-rgb));
+  --orb-rgb: var(--composer-on-accent-rgb);
+  --orb-eye: rgb(var(--composer-accent-rgb));
 }
 
 .effort-slider {
@@ -7815,14 +7845,10 @@ h6.md-h {
   animation: browser-fade 0.4s ease both;
 }
 
-.browser-empty .glyph-ghost {
-  width: 40px;
+.browser-empty .glyph-orb {
+  width: 42px;
   height: 42px;
   color: rgba(var(--fg-rgb), 0.16);
-}
-
-.browser-empty .glyph-ghost-eye {
-  fill: var(--chat-bg);
 }
 
 .browser-empty p {
@@ -7949,15 +7975,11 @@ h6.md-h {
   transform: translateX(-50%);
 }
 
-.browser-badge .glyph-ghost {
+.browser-badge .glyph-orb {
   width: 13px;
-  height: 14px;
+  height: 13px;
   color: rgb(var(--composer-accent-rgb));
   animation: browser-float 2.4s ease-in-out infinite;
-}
-
-.browser-badge .glyph-ghost-eye {
-  fill: rgb(22, 22, 22);
 }
 
 @keyframes browser-float {
@@ -8142,7 +8164,7 @@ h6.md-h {
   .thread-compact,
   .thread-compact.is-live .thread-compact-text,
   .browser-agent::before,
-  .browser-badge .glyph-ghost,
+  .browser-badge .glyph-orb,
   .browser-ripple::after,
   .browser.is-blank .browser-empty {
     animation: none;
@@ -8181,7 +8203,7 @@ h6.md-h {
     animation: none;
   }
 
-  .composer-ghost {
+  .composer-orb {
     animation: none;
     opacity: 0;
   }

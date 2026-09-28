@@ -4,8 +4,8 @@
 const RESIZE = { duration: 380, easing: 'cubic-bezier(0.32, 0.72, 0, 1)' };
 const CHAR_IN = 220;
 const CHAR_STAGGER = 16;
-const GHOST_OUT = 240;
-const GHOST_STAGGER = 12;
+const ORB_OUT = 240;
+const ORB_STAGGER = 12;
 const NUDGE = { duration: 420, easing: 'cubic-bezier(0.36, 0.07, 0.19, 0.97)' };
 
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -38,9 +38,9 @@ class FolderPill {
   this.shown = null;
   this.picking = null;
   this.token = 0;
-  button.innerHTML = `<span class="composer-folder-icons">${Glyphs.folderAdd}${Glyphs.folder}</span><span class="composer-folder-label"><span class="composer-folder-text"></span><span class="composer-folder-ghosts"></span></span>`;
+  button.innerHTML = `<span class="composer-folder-icons">${Glyphs.folderAdd}${Glyphs.folder}</span><span class="composer-folder-label"><span class="composer-folder-text"></span><span class="composer-folder-orbs"></span></span>`;
   this.label = button.querySelector('.composer-folder-text');
-  this.ghosts = button.querySelector('.composer-folder-ghosts');
+  this.orbs = button.querySelector('.composer-folder-orbs');
   button.addEventListener('click', () => this.pick());
   this.sync();
  }
@@ -63,13 +63,13 @@ class FolderPill {
    return;
   }
   const change = edit(previous, name);
-  this.ghosts.replaceChildren();
+  this.orbs.replaceChildren();
   this.depart(previous, change);
   this.button.style.width = `${from}px`;
   this.label.innerHTML = this.arrive(name, change);
   const to = chrome + this.label.scrollWidth;
   const letters = Math.max(change.removed, change.inserted, 1);
-  const duration = Math.max(RESIZE.duration, CHAR_IN + Math.max(0, change.inserted - 1) * CHAR_STAGGER, GHOST_OUT + Math.max(0, change.removed - 1) * GHOST_STAGGER);
+  const duration = Math.max(RESIZE.duration, CHAR_IN + Math.max(0, change.inserted - 1) * CHAR_STAGGER, ORB_OUT + Math.max(0, change.removed - 1) * ORB_STAGGER);
   if (from && to && from !== to) {
    const grow = this.button.animate([{ width: `${from}px` }, { width: `${to}px` }], { duration, easing: RESIZE.easing, fill: 'forwards' });
    grow.finished.then(() => {
@@ -94,17 +94,17 @@ class FolderPill {
    if (start >= change.at && start < change.at + change.removed) gone.push(span);
   }
   const n = gone.length;
-  const stagger = n > 1 ? Math.min(GHOST_STAGGER, 300 / n) : 0;
+  const stagger = n > 1 ? Math.min(ORB_STAGGER, 300 / n) : 0;
   gone.forEach((span, k) => {
    const rect = span.getBoundingClientRect();
-   const ghost = document.createElement('span');
-   ghost.className = 'composer-folder-ghost';
-   ghost.textContent = span.textContent;
-   ghost.style.left = `${rect.left - box.left}px`;
-   ghost.style.top = `${rect.top - box.top}px`;
-   ghost.style.animationDelay = `${Math.round((n - 1 - k) * stagger)}ms`;
-   ghost.addEventListener('animationend', () => ghost.remove());
-   this.ghosts.append(ghost);
+   const orb = document.createElement('span');
+   orb.className = 'composer-folder-orb';
+   orb.textContent = span.textContent;
+   orb.style.left = `${rect.left - box.left}px`;
+   orb.style.top = `${rect.top - box.top}px`;
+   orb.style.animationDelay = `${Math.round((n - 1 - k) * stagger)}ms`;
+   orb.addEventListener('animationend', () => orb.remove());
+   this.orbs.append(orb);
   });
  }
 

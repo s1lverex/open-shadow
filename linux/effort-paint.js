@@ -5,7 +5,7 @@ const NS = 'http://www.w3.org/2000/svg';
 const POUR_TIME = 1.25;
 const DRAIN_TIME = 0.75;
 const BLEED = { x: 40, y: 18 };
-const GHOST = { width: 17, aspect: 70 / 64, gap: 6, margin: 13 };
+const ORB = { width: 17, aspect: 70 / 64, gap: 6, margin: 13 };
 const FRONT = [
  { y: 0.22, r: 0.62, lead: 10, phase: 0 },
  { y: 0.5, r: 0.7, lead: 18, phase: 1.7 },
@@ -61,12 +61,12 @@ class EffortPaint {
   this.group.append(this.body, ...this.front, this.tongue, this.drip);
   this.root.append(defs, this.group);
   this.holder = document.createElement('span');
-  this.holder.className = 'effort-ghost';
+  this.holder.className = 'effort-orb';
   this.holder.setAttribute('aria-hidden', 'true');
   panel.prepend(this.root);
   panel.append(this.holder);
   this.puffs = [];
-  this.ghost = null;
+  this.orb = null;
   this.geo = null;
   this.t = 0;
   this.target = 0;
@@ -78,14 +78,14 @@ class EffortPaint {
  }
 
  layout({ width, height, lensRight }) {
-  const gx = lensRight + GHOST.gap + GHOST.width / 2;
-  const end = gx + GHOST.width / 2 + GHOST.margin;
+  const gx = lensRight + ORB.gap + ORB.width / 2;
+  const end = gx + ORB.width / 2 + ORB.margin;
   this.geo = { width, height, gx, end };
   const box = { x: -BLEED.x, y: -BLEED.y, width: end + BLEED.x * 2, height: height + BLEED.y * 2 };
   this.root.setAttribute('viewBox', `${box.x} ${box.y} ${box.width} ${box.height}`);
   Object.assign(this.root.style, { left: `${box.x}px`, top: `${box.y}px`, width: `${box.width}px`, height: `${box.height}px` });
   for (const name of ['x', 'y', 'width', 'height']) this.filter.setAttribute(name, box[name]);
-  Object.assign(this.holder.style, { left: `${gx}px`, top: `${height / 2}px`, width: `${GHOST.width}px`, height: `${GHOST.width * GHOST.aspect}px` });
+  Object.assign(this.holder.style, { left: `${gx}px`, top: `${height / 2}px`, width: `${ORB.width}px`, height: `${ORB.width * ORB.aspect}px` });
   this.layoutCloud();
  }
 
@@ -142,7 +142,7 @@ class EffortPaint {
  park() {
   cancelAnimationFrame(this.raf);
   this.raf = 0;
-  this.ghostVisible(false);
+  this.orbVisible(false);
  }
 
  get alive() {
@@ -166,13 +166,13 @@ class EffortPaint {
   if (this.t !== this.target || this.alive) this.raf = requestAnimationFrame(this.tick);
  }
 
- ghostVisible(on) {
-  if (on && !this.ghost) {
-   this.ghost = document.createElement('ghost-thinking');
-   this.holder.append(this.ghost);
-  } else if (!on && this.ghost) {
-   this.ghost.remove();
-   this.ghost = null;
+ orbVisible(on) {
+  if (on && !this.orb) {
+   this.orb = document.createElement('shadow-orb');
+   this.holder.append(this.orb);
+  } else if (!on && this.orb) {
+   this.orb.remove();
+   this.orb = null;
   }
  }
 
@@ -181,8 +181,8 @@ class EffortPaint {
   const t = this.t, bloom = this.bloom, { width: W, height: H, gx, end } = this.geo, R = H / 2, gy = R, time = now / 1000;
   this.root.style.display = t > 0 ? '' : 'none';
   this.panel.style.setProperty('--paint', smooth(phase(t, 0.3, 0.9)).toFixed(3));
-  this.ghostVisible(t > 0);
-  this.holder.style.setProperty('--ghost-appear', (phase(t, 0.05, 0.25) * smooth(phase(bloom, 0.25, 0.6))).toFixed(3));
+  this.orbVisible(t > 0);
+  this.holder.style.setProperty('--orb-appear', (phase(t, 0.05, 0.25) * smooth(phase(bloom, 0.25, 0.6))).toFixed(3));
   this.holder.style.transform = `translate(-50%, -50%) scale(${Math.max(0, backOut(phase(t, 0.08, 0.38)) * backOut(phase(bloom, 0.25, 0.75))).toFixed(3)})`;
   if (t <= 0) return;
 

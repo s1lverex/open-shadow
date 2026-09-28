@@ -3,10 +3,10 @@
 // OpenAI through the Responses API: with an API key against api.openai.com, or with a ChatGPT sign-in against the Codex backend.
 // The chat keeps its history in the Chat Completions shape; this module turns it into Responses input and the stream back into that shape.
 const os = require('node:os');
+const { text, parts } = require('./messages');
 
 const API_URL = 'https://api.openai.com/v1';
 const CODEX_URL = 'https://chatgpt.com/backend-api/codex/responses';
-const NO_VISION = '[A picture was here, but the selected model can\'t see pictures]';
 const EFFORTS = ['none', 'low', 'medium', 'high', 'xhigh'];
 
 // Models the app offers, newest first; an API key shows the ones its /models lists.
@@ -48,14 +48,6 @@ async function models({ provider, key, apiUrl = API_URL }) {
  return CATALOG.filter(entry => ids.has(entry.api)).map(model('openai'));
 }
 
-const text = content => typeof content === 'string' ? content : (content || []).filter(part => part.type === 'text').map(part => part.text).join('\n');
-
-function parts(content, vision) {
- if (typeof content === 'string') return [{ type: 'input_text', text: content }];
- return (content || []).map(part => part.type !== 'image_url' ? { type: 'input_text', text: part.text || '' }
-  : vision ? { type: 'input_image', image_url: part.image_url.url, detail: 'auto' } : { type: 'input_text', text: NO_VISION });
-}
-
 // System messages become the instructions; a reply that came from OpenAI goes back as its own items, reasoning included.
 function convert(messages, vision) {
  const instructions = [], input = [];
@@ -66,7 +58,7 @@ function convert(messages, vision) {
   else if (message.role === 'assistant') {
    if (message.content) input.push({ role: 'assistant', content: [{ type: 'output_text', text: message.content }] });
    for (const call of message.tool_calls || []) input.push({ type: 'function_call', call_id: call.id, name: call.function.name, arguments: call.function.arguments || '{}' });
-  } else input.push({ role: 'user', content: parts(message.content, vision) });
+  } else input.push({ role: 'user', content: parts(message.content, vision, 'responses') });
  }
  return { instructions: instructions.join('\n\n'), input };
 }
@@ -109,8 +101,8 @@ async function target({ provider, key, session }, { chatgpt, version, apiUrl = A
  const account = await chatgpt();
  const headers = {
   Authorization: `Bearer ${account.access}`,
-  originator: 'openghost',
-  'User-Agent': `OpenGhost/${version} (${os.platform()} ${os.release()}; ${os.arch()})`,
+  originator: 'openshadow',
+  'User-Agent': `Open Shadow/${version} (${os.platform()} ${os.release()}; ${os.arch()})`,
  };
  if (account.account) headers['ChatGPT-Account-Id'] = account.account;
  if (account.residency) headers['x-openai-internal-codex-residency'] = account.residency;

@@ -142,7 +142,7 @@ function decode(buffer, charset = 'utf-8') {
 async function runShell(id, { command, timeout }, cwd) {
  if (typeof command !== 'string' || !command.trim()) return { error: 'command is empty' };
  const { exe } = await detectShell();
- const dir = path.join(os.tmpdir(), 'openghost');
+ const dir = path.join(os.tmpdir(), 'openshadow');
  await fs.promises.mkdir(dir, { recursive: true });
  const file = path.join(dir, `command-${process.pid}-${String(id).replace(/[^\w-]/g, '')}.sh`);
  await fs.promises.writeFile(file, `#!/bin/zsh\nexport LANG=en_US.UTF-8\n${command}\n`, { mode: 0o700 });
@@ -260,7 +260,7 @@ async function runGit(id, { args }, cwd) {
  if (args[0] === 'git') args = args.slice(1);
  if (!(await detectGit())) return { missing: true };
  const flags = ['-c', 'core.quotepath=off', '-c', 'color.ui=never', '-c', 'core.pager=cat'];
- if (IDENTITY.has(args[0]) && !(await hasIdentity(cwd))) flags.push('-c', 'user.name=OpenGhost', '-c', 'user.email=openghost@localhost');
+ if (IDENTITY.has(args[0]) && !(await hasIdentity(cwd))) flags.push('-c', 'user.name=Open Shadow', '-c', 'user.email=openshadow@localhost');
  const result = await run(id, 'git', [...flags, ...args], { cwd, timeout: TIMEOUT.git });
  if (result.missing) return { missing: true };
  if (result.error && result.code === null) return { error: result.error };

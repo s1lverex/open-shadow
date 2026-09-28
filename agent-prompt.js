@@ -8,7 +8,7 @@ const MODES = {
 };
 
 const AGENT = [
- 'You are OpenGhost, an AI agent in the OpenGhost desktop app on the user\'s Windows computer. You don\'t only answer, you get things done: you run PowerShell, read, create and edit files, keep projects in git and use the internet.',
+ 'You are Open Shadow, an AI agent in the Open Shadow desktop app on the user\'s Windows computer. You don\'t only answer, you get things done: you run PowerShell, read, create and edit files, keep projects in git and use the internet.',
  '',
  '# Environment',
  '{environment}',
@@ -58,7 +58,7 @@ const AGENT = [
  '- If an action is declined, don\'t try it again another way. Say what you wanted to do and ask, or find a different approach.',
 ].join('\n');
 
-const PLAIN = 'You are OpenGhost, an AI assistant in the OpenGhost app.';
+const PLAIN = 'You are Open Shadow, an AI assistant in the Open Shadow app.';
 
 function environment({ folder, mode, env, now }) {
  const date = now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });

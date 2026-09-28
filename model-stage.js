@@ -58,7 +58,7 @@ function meta(model) {
  ].filter(Boolean).join(' · ');
 }
 
-// The glyph travels on a curve, bent to one side like the ghost's flights, growing or shrinking on the way.
+// The glyph travels on a curve, bent to one side like the orb's flights, growing or shrinking on the way.
 function arc(el, from, to, { duration, delay = 0, spin = ARC.spin, bend = ARC.bend, easing = EASE.flight }) {
  const box = el.offsetWidth, dx = to.x - from.x, dy = to.y - from.y;
  const c = { x: (from.x + to.x) / 2 - dy * bend, y: (from.y + to.y) / 2 + dx * bend };

@@ -101,8 +101,8 @@ async function target({ provider, key, session }, { chatgpt, version, apiUrl = A
  const account = await chatgpt();
  const headers = {
   Authorization: `Bearer ${account.access}`,
-  originator: 'openghost',
-  'User-Agent': `OpenGhost/${version} (${os.platform()} ${os.release()}; ${os.arch()})`,
+  originator: 'openshadow',
+  'User-Agent': `Open Shadow/${version} (${os.platform()} ${os.release()}; ${os.arch()})`,
  };
  if (account.account) headers['ChatGPT-Account-Id'] = account.account;
  if (account.residency) headers['x-openai-internal-codex-residency'] = account.residency;

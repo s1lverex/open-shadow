@@ -4,8 +4,8 @@
 const CHAR_DURATION = 0.22;
 const RISE = 0.35;
 const BLUR = 2;
-const GHOST_DURATION = 240;
-const GHOST_WAVE = 300;
+const ORB_DURATION = 240;
+const ORB_WAVE = 300;
 const MAX_MANUAL_DELETE = 200;
 const HOLD_HEIGHT = 150;
 const LINK_IN = 420;
@@ -29,7 +29,7 @@ class ComposerText {
   this.input = input;
   this.mirror = mirror;
   this.lines = mirror.querySelector('.composer-mirror-lines');
-  this.ghosts = input.parentElement.querySelector('.composer-ghosts');
+  this.orbs = input.parentElement.querySelector('.composer-orbs');
   this.value = input.value;
   this.paraStarts = [0];
   this.seg = null;
@@ -162,7 +162,7 @@ class ComposerText {
 
  removeLink(link) {
   this.holdHeight();
-  this.ghostLink(link);
+  this.orbLink(link);
   const field = this.input.parentElement;
   field.classList.add('is-clearing');
   clearTimeout(this.clearingTimer);
@@ -171,18 +171,18 @@ class ComposerText {
   document.execCommand('delete');
  }
 
- ghostLink(link) {
+ orbLink(link) {
   const span = this.lines.querySelector(`.composer-link[data-from="${link.from}"]`);
   if (!span || reducedMotion()) return;
-  const box = this.ghosts.getBoundingClientRect(), rect = span.getBoundingClientRect(), ghost = span.cloneNode(true);
-  ghost.classList.remove('is-new');
-  ghost.classList.add('composer-link-ghost');
-  ghost.style.animationDelay = '';
-  ghost.style.left = `${rect.left - box.left}px`;
-  ghost.style.top = `${rect.top - box.top}px`;
-  this.ghosts.append(ghost);
-  ghost.animate([{ opacity: 1, transform: 'none', filter: 'blur(0px)' }, { opacity: 0, transform: 'scale(0.8)', filter: 'blur(2px)' }], LINK_OUT)
-   .finished.then(() => ghost.remove());
+  const box = this.orbs.getBoundingClientRect(), rect = span.getBoundingClientRect(), orb = span.cloneNode(true);
+  orb.classList.remove('is-new');
+  orb.classList.add('composer-link-orb');
+  orb.style.animationDelay = '';
+  orb.style.left = `${rect.left - box.left}px`;
+  orb.style.top = `${rect.top - box.top}px`;
+  this.orbs.append(orb);
+  orb.animate([{ opacity: 1, transform: 'none', filter: 'blur(0px)' }, { opacity: 0, transform: 'scale(0.8)', filter: 'blur(2px)' }], LINK_OUT)
+   .finished.then(() => orb.remove());
  }
 
  onCopy(e, cut) {
@@ -275,7 +275,7 @@ class ComposerText {
   const erased = animate && !inserted && pending.collapsed && MANUAL_DELETE.test(pending.type) && removed <= MAX_MANUAL_DELETE;
   if (erased) {
    this.holdHeight();
-   this.spawnGhosts(old, at, at + removed);
+   this.spawnOrbs(old, at, at + removed);
   }
   const first = this.paraAt(at), oldLast = this.paraAt(at + removed);
   this.value = next;
@@ -448,9 +448,9 @@ class ComposerText {
   return this.paraStarts[lo] || 0;
  }
 
- spawnGhosts(old, from, to) {
-  const box = this.ghosts.getBoundingClientRect();
-  const range = document.createRange(), ghosts = [];
+ spawnOrbs(old, from, to) {
+  const box = this.orbs.getBoundingClientRect();
+  const range = document.createRange(), orbs = [];
   for (let i = Math.max(from, this.firstVisibleIndex(this.mirror.scrollTop)); i < to; i++) {
    const ch = old[i];
    if (ch === '\n' || ch === ' ' || ch === '\t') continue;
@@ -462,15 +462,15 @@ class ComposerText {
    range.setEnd(pos.node, Math.min(pos.node.length, pos.offset + width));
    const r = range.getBoundingClientRect(), top = r.top - box.top;
    if (top > this.viewHeight) break;
-   if (top + r.height >= 0 && r.width) ghosts.push({ text: old.slice(i, i + width), left: r.left - box.left, top });
+   if (top + r.height >= 0 && r.width) orbs.push({ text: old.slice(i, i + width), left: r.left - box.left, top });
    i += width - 1;
   }
-  if (!ghosts.length) return;
-  const n = ghosts.length, stagger = n > 1 ? Math.min(12, GHOST_WAVE / n) : 0;
+  if (!orbs.length) return;
+  const n = orbs.length, stagger = n > 1 ? Math.min(12, ORB_WAVE / n) : 0;
   const batch = document.createElement('div');
-  batch.innerHTML = ghosts.map((g, k) => `<span class="composer-ghost" style="left:${g.left}px;top:${g.top}px;animation-delay:${Math.round((n - 1 - k) * stagger)}ms">${escapeHtml(g.text)}</span>`).join('');
-  this.ghosts.appendChild(batch);
-  const field = this.input.parentElement, total = GHOST_DURATION + n * stagger;
+  batch.innerHTML = orbs.map((g, k) => `<span class="composer-orb" style="left:${g.left}px;top:${g.top}px;animation-delay:${Math.round((n - 1 - k) * stagger)}ms">${escapeHtml(g.text)}</span>`).join('');
+  this.orbs.appendChild(batch);
+  const field = this.input.parentElement, total = ORB_DURATION + n * stagger;
   field.classList.add('is-clearing');
   clearTimeout(this.clearingTimer);
   this.clearingTimer = setTimeout(() => field.classList.remove('is-clearing'), total);

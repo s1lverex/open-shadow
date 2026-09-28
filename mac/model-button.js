@@ -16,7 +16,7 @@ const RING = Math.ceil(Math.hypot(SMALL[0] - CENTER[0], SMALL[1] - CENTER[1]) + 
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const random = ([min, max]) => min + Math.random() * (max - min);
 
-// The stage's copy is alive: the small star keeps circling the big one, like the ghost that never stands still.
+// The stage's copy is alive: the small star keeps circling the big one, like the orb that never stands still.
 // A flying copy holds still, its small star turned to where it stood when the glyph took off.
 function glyph({ alive = false, turn = 0 } = {}) {
  const orbit = alive && !reducedMotion()
@@ -48,7 +48,7 @@ class ModelButton extends IconButton {
  }
  connectedCallback(){super.connectedCallback();this.plan()}
  disconnectedCallback(){super.disconnectedCallback();clearTimeout(this.idle)}
- // Now and then the small star twinkles on its own, the way the ghost blinks.
+ // Now and then the small star twinkles on its own, the way the orb blinks.
  plan(){
   clearTimeout(this.idle);
   this.idle=setTimeout(()=>{

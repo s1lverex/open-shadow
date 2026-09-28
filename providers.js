@@ -3,7 +3,7 @@
 
 // Every model call goes through here: DeepSeek straight from the page, OpenAI, ChatGPT and Anthropic through the main process.
 // Whatever the provider, a call resolves to the same result: content, reasoning, tool calls, finish reason and usage.
-const bridge = window.openghost?.llm || null;
+const bridge = window.openshadow?.llm || null;
 const listeners = new Map();
 bridge?.onEvent(data => listeners.get(data.id)?.(data));
 

@@ -40,7 +40,7 @@ window.addEventListener('pagehide', () => library.flush());
 const chat = new Chat({ main, thread, bottom: threadBottom, settings, library, onChange: syncAll, onList: list => threadScrollbar.observe(list) });
 const lockScreen = new LockScreen({ main, chat, composer, onOpen: () => composerInput.focus({ preventScroll: true }) });
 const lockCard = new LockCard({ chat, library, scroller: document.querySelector('.chats-scroll') });
-new WelcomeGhost({ main, root: document.querySelector('.welcome'), input: composerInput });
+new WelcomeShadow({ main, root: document.querySelector('.welcome'), input: composerInput });
 folderPill = new FolderPill({ button: document.querySelector('.composer-folder'), library, chat });
 chatList = new ChatList({
   root: document.querySelector('.chats'),
@@ -58,7 +58,7 @@ chatList = new ChatList({
   },
   onLock: (id, row) => lockCard.open(id, row),
 });
-document.querySelector('.titlebar-name').innerHTML = `${Glyphs.ghost}<span>OpenGhost</span>`;
+document.querySelector('.titlebar-name').innerHTML = `${Glyphs.umbra}<span>Open Shadow</span>`;
 const modeButton = document.querySelector('.composer-mode');
 const browserToggle = document.querySelector('.browser-toggle');
 let browserPanel = null;

@@ -1,7 +1,7 @@
 (() => {
 'use strict';
 
-const STORAGE = { effort: 'deepseek.effort', mode: 'openghost.mode', model: 'openghost.model', catalog: 'openghost.catalog' };
+const STORAGE = { effort: 'deepseek.effort', mode: 'openshadow.mode', model: 'openshadow.model', catalog: 'openshadow.catalog' };
 // The registry mirrored for the settings, so the UI renders before the bridge answers; llm.providers() replaces it with the same data.
 const FALLBACK_PROVIDERS = [
  { id: 'deepseek', label: 'DeepSeek', apiUrl: 'https://api.deepseek.com/v1', keyUrl: 'https://platform.deepseek.com/api_keys', keyHost: 'platform.deepseek.com', keyPlaceholder: 'sk-…', models: [] },
@@ -147,7 +147,7 @@ class Settings {
 
  // The bridge answers with the same registry the fallback mirrors; a provider it adds is picked up here.
  async loadProviders() {
-  const bridge = window.openghost?.llm;
+  const bridge = window.openshadow?.llm;
   if (!bridge?.providers) return;
   let list = [];
   try { list = await bridge.providers(); } catch { return; }
@@ -272,7 +272,7 @@ class Settings {
 
  // A sign-in can lapse while the app runs, so the settings ask how it stands each time they open.
  async syncAccount() {
-  const auth = window.openghost?.auth;
+  const auth = window.openshadow?.auth;
   if (!auth || this.account.waiting) return;
   const account = await auth.status().catch(() => null);
   if (account && !this.account.waiting) this.setAccount(account);
@@ -318,10 +318,10 @@ class Settings {
   this.accountBox.addEventListener('click', event => {
    const action = event.target.closest('[data-action]')?.dataset.action;
    if (action === 'login') this.login();
-   else if (action === 'cancel') window.openghost?.auth?.cancel();
+   else if (action === 'cancel') window.openshadow?.auth?.cancel();
    else if (action === 'logout') this.logout();
   });
-  if (!window.openghost?.auth) this.accountBox.closest('.settings-row').hidden = true;
+  if (!window.openshadow?.auth) this.accountBox.closest('.settings-row').hidden = true;
  }
 
  paint() {
@@ -353,7 +353,7 @@ class Settings {
  }
 
  async login() {
-  const auth = window.openghost?.auth;
+  const auth = window.openshadow?.auth;
   if (!auth || this.account.waiting) return;
   this.setStatus('chatgpt', '');
   this.account = { ...this.account, waiting: true };
@@ -365,7 +365,7 @@ class Settings {
  }
 
  async logout() {
-  const auth = window.openghost?.auth;
+  const auth = window.openshadow?.auth;
   if (!auth) return;
   this.setAccount(await auth.logout());
   this.setStatus('chatgpt', '');
