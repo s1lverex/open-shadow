@@ -8,14 +8,12 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const TREES = ['', 'linux', 'mac'];
 const SKIP_DIRS = new Set(['.git', 'node_modules']);
 const BINARY = /\.(?:png|ico|jpg|jpeg|gif|webp|bmp|woff2?|ttf|otf|icns)$/i;
-// The upstream credit is intentionally kept in the licence and the READMEs (brief 30/45).
-// package-lock.json is generated. The stale download-stub prefix in tools/sync-trees.mjs is
-// tooling left over from the fork; brief 45 removes it but is not a prerequisite here.
+// The upstream credit is allowed in LICENSE, the READMEs and the generated lockfile only.
 const ALLOWED_OPENGHOST = rel =>
   rel === 'LICENSE' || rel.endsWith('/LICENSE') ||
   rel === 'README.md' || rel.endsWith('/README.md') ||
   rel === 'package-lock.json' || rel.endsWith('/package-lock.json') ||
-  rel.startsWith('tests/') || rel.endsWith('tools/sync-trees.mjs');
+  rel.startsWith('tests/');
 
 function walk(dir, out = []) {
   for (const name of readdirSync(dir).sort()) {

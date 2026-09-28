@@ -30,9 +30,7 @@ const MUST_DIFFER = ['package.json', 'README.md', 'agent-prompt.js', 'agent-tool
 const EXCLUDE_TOP = new Set(['.git', 'node_modules', 'tests', 'briefs', 'images', 'linux', 'mac']);
 // Generated per-tree artifacts that intentionally have no root counterpart.
 const KEEP_TARGET_ONLY = new Set(['icon.png']);
-const EXCLUDE_PREFIX = ['OpenGhost v1.0.1 '];
-const isExcludedTop = (name) =>
-  EXCLUDE_TOP.has(name) || EXCLUDE_PREFIX.some((p) => name.startsWith(p));
+const isExcludedTop = (name) => EXCLUDE_TOP.has(name);
 
 function walk(dir, base, out = []) {
   for (const name of readdirSync(dir).sort()) {
