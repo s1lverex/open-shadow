@@ -12,6 +12,8 @@ code is shared under the MIT license; the Open Shadow name, the Umbra marks, the
 opening animation are original to this fork. See [LICENSE](LICENSE) and
 [Differences from the upstream project](#differences-from-the-upstream-project).
 
+All screenshots below are of this fork.
+
 ## Providers
 
 Every provider keeps its key or sign-in on this machine. The app checks them for you.
@@ -31,6 +33,8 @@ Every provider keeps its key or sign-in on this machine. The app checks them for
 | Google Gemini | Chat Completions |
 | Custom | any OpenAI-compatible base URL and model id |
 
+![Model picker listing the built-in providers](images/providers.png)
+
 ## Verified
 
 The release evidence — unit tests, the registry mutation check, the in-app mock run over real
@@ -42,24 +46,26 @@ with the commands to re-run it.
 The app starts on its own screen. A drop falls, the orb forms, its motes ignite, and the name
 **Open Shadow** rises. Skip it with a click or any key.
 
+![Opening animation of the Umbra orb](images/opening.png)
+
 ## A chat lives in a folder
 
 Every new chat belongs to a folder you choose. Until the first message, the orb waits above the
 composer.
+
+![Empty chat with the orb above the composer](images/home.png)
 
 ## Show the numbers, do not only tell them
 
 Shares, flows, prices, and plans become charts and diagrams next to the explanation. One picture
 carries the idea.
 
-![Donut chart and a flowchart](images/visual.jpg)
+![A turn rendering a flowchart and a donut chart](images/diagram.png)
 
 ## Change the diagram where it stands
 
 A chart is not a finished picture. Open it and edit the layout, the blocks, and the arrows. The
 drawing updates in place.
-
-![Diagram editor on a flowchart](images/editor.jpg)
 
 ## A browser with its own cursor
 
@@ -67,28 +73,24 @@ Open Shadow has a built-in browser and drives it itself. It opens a page, moves 
 clicks, types, and sees what is on the screen. The panel sits on the right of the chat. Close it
 and the agent still works.
 
-![Chat beside the built-in browser](images/browser.jpg)
-
 ## Mini chat for a side question
 
 Select a passage and open Mini chat over the conversation. It is the same agent, with the current
 chat as context. Nothing written there is saved, and closing the window throws it away.
-
-![Mini chat over a chart](images/mini.jpg)
 
 ## Three ways to let it act
 
 Ask waits for approval before commands, file changes, and the web. Auto works inside the project
 folder and asks before a risky step. Full access does not ask.
 
-![Ask, Auto, and Full access](images/modes.jpg)
+![The Ask, Auto and Full access menu](images/modes.png)
 
 ## The key stays on this computer
 
 Keys and sign-ins are stored only on your machine. The settings screen connects every provider
 above and shows which ones are ready.
 
-![API key settings](images/settings.jpg)
+![Provider settings scrolled to Anthropic, Xiaomi MiMo, Moonshot Kimi and Qwen](images/settings.png)
 
 ## Differences from the upstream project
 
