@@ -2,9 +2,47 @@
 'use strict';
 
 const STORAGE = { effort: 'deepseek.effort', mode: 'openghost.mode', model: 'openghost.model', catalog: 'openghost.catalog' };
-const KEYS = { openai: 'openai.apiKey', anthropic: 'anthropic.apiKey', deepseek: 'deepseek.apiKey' };
+// The registry mirrored for the settings, so the UI renders before the bridge answers; llm.providers() replaces it with the same data.
+const FALLBACK_PROVIDERS = [
+ { id: 'deepseek', label: 'DeepSeek', apiUrl: 'https://api.deepseek.com/v1', keyUrl: 'https://platform.deepseek.com/api_keys', keyHost: 'platform.deepseek.com', keyPlaceholder: 'sk-…', models: [] },
+ { id: 'openai', label: 'OpenAI', apiUrl: 'https://api.openai.com/v1', keyUrl: 'https://platform.openai.com/api-keys', keyHost: 'platform.openai.com', keyPlaceholder: 'sk-…', models: [] },
+ { id: 'chatgpt', label: 'ChatGPT', apiUrl: 'https://chatgpt.com/backend-api/codex/responses', keyUrl: null, keyHost: null, keyPlaceholder: null, models: [] },
+ { id: 'anthropic', label: 'Anthropic', apiUrl: 'https://api.anthropic.com', keyUrl: 'https://console.anthropic.com/settings/keys', keyHost: 'console.anthropic.com', keyPlaceholder: 'sk-ant-…', models: [] },
+ { id: 'mimo', label: 'Xiaomi MiMo', apiUrl: 'https://api.xiaomimimo.com/v1', keyUrl: 'https://platform.xiaomimimo.com', keyHost: 'platform.xiaomimimo.com', keyPlaceholder: 'sk-…', models: [
+  { id: 'mimo-v2.6-pro', name: 'MiMo-V2.6-Pro', vision: true },
+  { id: 'mimo-v2.6-flash', name: 'MiMo-V2.6-Flash', vision: true },
+  { id: 'mimo-v2.6-pro-ultraspeed', name: 'MiMo-V2.6-Pro-Ultraspeed', vision: true },
+  { id: 'mimo-v2.5-pro', name: 'MiMo-V2.5-Pro', vision: false },
+  { id: 'mimo-v2.5', name: 'MiMo-V2.5', vision: true },
+ ] },
+ { id: 'moonshot', label: 'Moonshot Kimi', apiUrl: 'https://api.moonshot.cn/v1', keyUrl: 'https://platform.moonshot.cn/console/api-keys', keyHost: 'platform.moonshot.cn', keyPlaceholder: 'sk-…', models: [] },
+ { id: 'qwen', label: 'Qwen (DashScope)', apiUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1', keyUrl: 'https://bailian.console.aliyun.com/', keyHost: 'bailian.console.aliyun.com', keyPlaceholder: 'sk-…', models: [] },
+ { id: 'groq', label: 'Groq', apiUrl: 'https://api.groq.com/openai/v1', keyUrl: 'https://console.groq.com/keys', keyHost: 'console.groq.com', keyPlaceholder: 'gsk_…', models: [] },
+ { id: 'openrouter', label: 'OpenRouter', apiUrl: 'https://openrouter.ai/api/v1', keyUrl: 'https://openrouter.ai/keys', keyHost: 'openrouter.ai', keyPlaceholder: 'sk-or-…', models: [] },
+ { id: 'xai', label: 'xAI Grok', apiUrl: 'https://api.x.ai/v1', keyUrl: 'https://console.x.ai/', keyHost: 'console.x.ai', keyPlaceholder: 'xai-…', models: [] },
+ { id: 'gemini', label: 'Google Gemini', apiUrl: 'https://generativelanguage.googleapis.com/v1beta/openai', keyUrl: 'https://aistudio.google.com/apikey', keyHost: 'aistudio.google.com', keyPlaceholder: 'AIza…', models: [] },
+ { id: 'custom', label: 'Custom (OpenAI-compatible)', apiUrl: '', keyUrl: null, keyHost: null, keyPlaceholder: 'sk-…', models: [] },
+];
+let PROVIDERS = FALLBACK_PROVIDERS.slice();
+let KEYS = {};
 // The order providers appear in, in the settings and in the model picker.
-const ORDER = ['chatgpt', 'openai', 'anthropic', 'deepseek'];
+let ORDER = [];
+let LINKS = {};
+
+function adoptProviders(list) {
+ PROVIDERS = list.length ? list : FALLBACK_PROVIDERS.slice();
+ ORDER = PROVIDERS.map(provider => provider.id);
+ KEYS = {};
+ LINKS = {};
+ for (const provider of PROVIDERS) {
+  if (provider.id === 'chatgpt') continue;
+  KEYS[provider.id] = `${provider.id}.apiKey`;
+  if (provider.keyUrl) LINKS[provider.id] = [provider.keyUrl, provider.keyHost];
+ }
+}
+adoptProviders([]);
+
+const meta = id => PROVIDERS.find(provider => provider.id === id) || FALLBACK_PROVIDERS.find(provider => provider.id === id) || { id };
 const DEFAULT_MODEL = 'deepseek-flash';
 const EFFORTS = ['none', 'low', 'high', 'max'];
 const DEFAULT_EFFORT = 'high';
@@ -14,11 +52,6 @@ const KNOWN_DEEPSEEK = [
  { id: 'deepseek-flash', api: 'deepseek-flash', provider: 'deepseek', name: 'DeepSeek-V4.1-Flash', context: 1048576, efforts: EFFORTS, defaultEffort: DEFAULT_EFFORT, vision: true },
  { id: 'deepseek-v4-pro', api: 'deepseek-v4-pro', provider: 'deepseek', name: 'DeepSeek-V4-Pro', context: 1048576, efforts: EFFORTS, defaultEffort: DEFAULT_EFFORT, vision: false },
 ];
-const LINKS = {
- openai: ['https://platform.openai.com/api-keys', 'platform.openai.com'],
- anthropic: ['https://console.anthropic.com/settings/keys', 'console.anthropic.com'],
- deepseek: ['https://platform.deepseek.com/api_keys', 'platform.deepseek.com'],
-};
 const MODES = ['ask', 'auto', 'full'];
 const DEFAULT_MODE = 'ask';
 const CHECK_DELAY = 400;
@@ -26,16 +59,21 @@ const CHECK_DELAY = 400;
 const escapeHtml = text => String(text).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 
 function keyRow(provider) {
- const [href, host] = LINKS[provider];
+ const [href, host] = LINKS[provider] || [];
+ const info = meta(provider);
  const note = I18n.has(`settings.${provider}.note`) ? ` ${escapeHtml(I18n.t(`settings.${provider}.note`))}` : '';
+ const link = href ? ` <a href="${href}" target="_blank" rel="noopener noreferrer">${host}</a>.` : '.';
+ const extra = provider === 'custom' ? `
+    <input id="settings-url-custom" class="settings-url" data-provider="custom" type="text" placeholder="${escapeHtml(I18n.t('settings.custom.url'))}" aria-label="${escapeHtml(I18n.t('settings.custom.url'))}" autocomplete="off" spellcheck="false">
+    <input id="settings-model-custom" class="settings-model" data-provider="custom" type="text" placeholder="${escapeHtml(I18n.t('settings.custom.model'))}" aria-label="${escapeHtml(I18n.t('settings.custom.model'))}" autocomplete="off" spellcheck="false">` : '';
  return `
   <div class="settings-row">
    <div class="settings-text">
     <label class="settings-label" for="settings-key-${provider}">${escapeHtml(I18n.t(`settings.${provider}.key`))}</label>
-    <p class="settings-hint"><span>${escapeHtml(I18n.t(`settings.${provider}.hint`))}</span> <a href="${href}" target="_blank" rel="noopener noreferrer">${host}</a>.${note}</p>
+    <p class="settings-hint"><span>${escapeHtml(I18n.t(`settings.${provider}.hint`))}</span>${link}${note}</p>
    </div>
    <div class="settings-control">
-    <input id="settings-key-${provider}" class="settings-key" data-provider="${provider}" type="text" placeholder="${provider === 'anthropic' ? 'sk-ant-…' : 'sk-…'}" autocomplete="off" spellcheck="false">
+    <input id="settings-key-${provider}" class="settings-key" data-provider="${provider}" type="text" placeholder="${escapeHtml(info.keyPlaceholder || 'sk-…')}" autocomplete="off" spellcheck="false">${extra}
     <p class="settings-status" data-provider="${provider}" role="status"></p>
    </div>
   </div>`;
@@ -77,6 +115,7 @@ class Settings {
   this.dialog = dialog;
   this.list = dialog.querySelector('.settings-providers');
   this.keys = Object.fromEntries(Object.entries(KEYS).map(([provider, key]) => [provider, localStorage.getItem(key) || '']));
+  this.custom = { apiUrl: localStorage.getItem('custom.apiUrl') || '', model: localStorage.getItem('custom.model') || '' };
   this.account = { connected: false };
   this.catalog = this.readCatalog();
   this.models = [];
@@ -96,12 +135,30 @@ class Settings {
   this.collect();
   dialog.addEventListener('dismiss', () => dialog.close());
   this.refreshAll();
+  this.loadProviders();
  }
 
  readCatalog() {
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem(STORAGE.catalog)) || {}; } catch {}
-  return { chatgpt: [], openai: [], anthropic: [], ...saved, deepseek: saved.deepseek?.length ? saved.deepseek : KNOWN_DEEPSEEK.slice() };
+  const base = Object.fromEntries(PROVIDERS.map(provider => [provider.id, provider.models || []]));
+  return { ...base, ...saved, deepseek: saved.deepseek?.length ? saved.deepseek : KNOWN_DEEPSEEK.slice() };
+ }
+
+ // The bridge answers with the same registry the fallback mirrors; a provider it adds is picked up here.
+ async loadProviders() {
+  const bridge = window.openghost?.llm;
+  if (!bridge?.providers) return;
+  let list = [];
+  try { list = await bridge.providers(); } catch { return; }
+  if (!Array.isArray(list) || !list.length) return;
+  if (JSON.stringify(list) === JSON.stringify(PROVIDERS)) return;
+  adoptProviders(list);
+  this.keys = Object.fromEntries(Object.entries(KEYS).map(([provider, key]) => [provider, localStorage.getItem(key) || '']));
+  this.accepted = new Set(Object.keys(KEYS).filter(provider => this.keys[provider]));
+  this.build();
+  this.collect();
+  this.refreshAll();
  }
 
  saveCatalog() {
@@ -147,6 +204,7 @@ class Settings {
    model: model?.api || id,
    name: model?.name || id,
    key: this.keys[provider] || '',
+   apiUrl: provider === 'custom' ? this.custom.apiUrl : meta(provider).apiUrl,
    ready: this.connected(provider),
    effort,
    efforts,
@@ -223,26 +281,37 @@ class Settings {
  // Loads a provider's models into the catalog; the last request for a provider wins.
  async refresh(provider) {
   const token = (this.checks[provider] = (this.checks[provider] || 0) + 1);
-  const models = await Providers.models(provider, this.keys[provider]);
+  const models = await Providers.models(provider, this.keys[provider], provider === 'custom' ? this.custom.apiUrl : meta(provider).apiUrl);
   if (token !== this.checks[provider]) return false;
-  this.catalog[provider] = models.length || provider !== 'deepseek' ? models : KNOWN_DEEPSEEK.slice();
+  const fallback = provider === 'deepseek' ? KNOWN_DEEPSEEK.slice() : (meta(provider).models || []).slice();
+  this.catalog[provider] = models.length ? models : fallback;
+  if (!this.catalog[provider].length && provider === 'custom' && this.custom.model) {
+   this.catalog[provider] = [{ id: this.custom.model, api: this.custom.model, provider: 'custom', name: this.custom.model }];
+  }
   this.saveCatalog();
   this.changed();
   return true;
  }
 
  build() {
-  this.list.innerHTML = [
-   section('openai', 'OpenAI', accountRow() + keyRow('openai')),
-   section('anthropic', 'Anthropic', keyRow('anthropic')),
-   section('deepseek', 'DeepSeek', keyRow('deepseek')),
-  ].join('');
+  this.list.innerHTML = ORDER.map(provider => {
+   const name = meta(provider).label || provider;
+   if (provider === 'chatgpt') return section('chatgpt', name, accountRow());
+   return section(provider, name, provider === 'openai' ? accountRow() + keyRow(provider) : keyRow(provider));
+  }).join('');
   this.inputs = {};
   for (const input of this.list.querySelectorAll('.settings-key')) {
    const provider = input.dataset.provider;
    this.inputs[provider] = input;
    input.value = this.keys[provider];
    input.addEventListener('input', () => this.onKeyInput(provider));
+  }
+  this.customInputs = {};
+  for (const input of this.list.querySelectorAll('.settings-url, .settings-model')) {
+   const kind = input.classList.contains('settings-url') ? 'apiUrl' : 'model';
+   this.customInputs[kind] = input;
+   input.value = this.custom[kind];
+   input.addEventListener('input', () => this.onCustomInput());
   }
   this.statuses = Object.fromEntries([...this.list.querySelectorAll('.settings-status')].map(node => [node.dataset.provider, node]));
   this.accountBox = this.list.querySelector('.settings-account');
@@ -338,6 +407,24 @@ class Settings {
   this.paint();
   this.setStatus(provider, I18n.t('settings.key.checking'));
   this.timer[provider] = setTimeout(() => this.checkKey(provider), CHECK_DELAY);
+ }
+
+ // The custom endpoint keeps its base URL and model next to its key; both live under their own storage names.
+ onCustomInput() {
+  const apiUrl = this.customInputs.apiUrl?.value.trim() || '';
+  const model = this.customInputs.model?.value.trim() || '';
+  this.custom = { apiUrl, model };
+  if (apiUrl) localStorage.setItem('custom.apiUrl', apiUrl);
+  else localStorage.removeItem('custom.apiUrl');
+  if (model) localStorage.setItem('custom.model', model);
+  else localStorage.removeItem('custom.model');
+  clearTimeout(this.timer?.custom);
+  this.checked.delete('custom');
+  this.accepted.delete('custom');
+  this.changed();
+  if (!this.keys.custom) return;
+  this.setStatus('custom', I18n.t('settings.key.checking'));
+  this.timer = { ...this.timer, custom: setTimeout(() => this.checkKey('custom'), CHECK_DELAY) };
  }
 
  // A working key shows only in the badge; the line under the field is for the check in progress and for what went wrong.

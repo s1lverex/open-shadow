@@ -7,7 +7,20 @@ const bridge = window.openghost?.llm || null;
 const listeners = new Map();
 bridge?.onEvent(data => listeners.get(data.id)?.(data));
 
-const NAMES = { deepseek: 'DeepSeek', openai: 'OpenAI', chatgpt: 'ChatGPT', anthropic: 'Anthropic' };
+// The registry labels and kinds, kept here so routing stays synchronous; deepseek is the one provider that runs in-page.
+const NAMES = {
+ deepseek: 'DeepSeek', openai: 'OpenAI', chatgpt: 'ChatGPT', anthropic: 'Anthropic',
+ mimo: 'Xiaomi MiMo', moonshot: 'Moonshot Kimi', qwen: 'Qwen (DashScope)', groq: 'Groq',
+ openrouter: 'OpenRouter', xai: 'xAI Grok', gemini: 'Google Gemini', custom: 'Custom (OpenAI-compatible)',
+};
+const KINDS = {
+ deepseek: 'inpage', openai: 'responses', chatgpt: 'codex', anthropic: 'anthropic-sdk',
+ mimo: 'chat', moonshot: 'chat', qwen: 'chat', groq: 'chat', openrouter: 'chat', xai: 'chat', gemini: 'chat', custom: 'chat',
+};
+
+function unknown(provider) {
+ return new ProviderError(`Unknown provider: ${provider}`);
+}
 
 class ProviderError extends Error {
  constructor(message, status = 0) {
@@ -33,7 +46,7 @@ function viaMain(config, { messages, tools, signal, onReasoning, onContent, maxT
  if (!bridge) return Promise.reject(new ProviderError(I18n.t('error.desktop', { provider: NAMES[config.provider] })));
  const id = `llm-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
  const request = {
-  provider: config.provider, key: config.key, model: config.model, effort: config.effort, vision: config.vision,
+  provider: config.provider, apiUrl: config.apiUrl, key: config.key, model: config.model, effort: config.effort, vision: config.vision,
   thinking: config.thinking, output: config.output, messages, tools, maxTokens, session,
  };
  return new Promise((resolve, reject) => {
@@ -65,14 +78,18 @@ function viaMain(config, { messages, tools, signal, onReasoning, onContent, maxT
 }
 
 function stream(config, options) {
- if (config.provider !== 'deepseek') return viaMain(config, options);
+ const kind = KINDS[config.provider];
+ if (!kind) throw unknown(config.provider);
+ if (kind !== 'inpage') return viaMain(config, options);
  const { messages, tools, signal, onReasoning, onContent } = options;
  return DeepSeek.streamChat({ key: config.key, model: config.model, effort: config.effort, vision: config.vision, messages, tools, signal, onReasoning, onContent });
 }
 
 // Short side jobs, such as naming a chat or compacting it, think as little as the model allows.
 async function complete(config, { messages, signal, maxTokens = 40 }) {
- if (config.provider === 'deepseek') return DeepSeek.complete({ key: config.key, model: config.model, messages, signal, maxTokens });
+ const kind = KINDS[config.provider];
+ if (!kind) throw unknown(config.provider);
+ if (kind === 'inpage') return DeepSeek.complete({ key: config.key, model: config.model, messages, signal, maxTokens });
  const efforts = config.efforts || [];
  const effort = efforts.includes('none') ? 'none' : efforts[0] || 'low';
  const room = config.provider === 'anthropic' ? Math.max(maxTokens, 2048) : maxTokens;
@@ -80,10 +97,12 @@ async function complete(config, { messages, signal, maxTokens = 40 }) {
  return result.content.trim();
 }
 
-async function models(provider, key) {
- if (provider === 'deepseek') return (await DeepSeek.listModels(key)).map(model => ({ ...model, provider: 'deepseek', api: model.id }));
+async function models(provider, key, apiUrl) {
+ const kind = KINDS[provider];
+ if (!kind) throw unknown(provider);
+ if (kind === 'inpage') return (await DeepSeek.listModels(key)).map(model => ({ ...model, provider: 'deepseek', api: model.id }));
  if (!bridge) return [];
- const reply = await bridge.models(provider, key);
+ const reply = await bridge.models(provider, key, apiUrl);
  if (reply.error) throw new ProviderError(explain(provider, reply.error), reply.error.status);
  return reply.models;
 }
